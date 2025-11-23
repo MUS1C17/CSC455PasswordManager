@@ -9,7 +9,7 @@ from Crypto.Random import get_random_bytes
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QDialog, QVBoxLayout, QHBoxLayout,
     QLabel, QLineEdit, QPushButton, QMessageBox, QTableWidget,
-    QTableWidgetItem, QHeaderView, QFormLayout, QFrame
+    QTableWidgetItem, QHeaderView, QFormLayout, QFrame, QAbstractButton
 )
 from PyQt5.QtCore import Qt
 
@@ -187,8 +187,8 @@ class LoginDialog(QDialog):
 
         self.subtitle_label = QLabel()
         self.subtitle_label.setAlignment(Qt.AlignCenter)
-        self.subtitle_label.setWordWrap(True)
-        self.subtitle_label.setStyleSheet("color: #9ca3af; font-size: 11px;")
+        self.subtitle_label.setWordWrap(False)
+        self.subtitle_label.setStyleSheet("color: #9ca3af; font-size: 11px; padding: 4px;")
 
         card_layout.addWidget(self.title_label)
         card_layout.addWidget(self.subtitle_label)
@@ -447,6 +447,10 @@ def main():
             border-radius: 4px;
             padding: 4px;
             color: #e5e7eb;
+        }
+        QTableView QTableCornerButton::section {
+            background-color: #020617; 
+            border: 1px solid black;
         }
         QHeaderView::section {
             background-color: #020617;
