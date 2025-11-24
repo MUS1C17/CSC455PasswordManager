@@ -1,6 +1,7 @@
 import sys
 import json
 import sqlite3
+import random
 
 from Crypto.Protocol.KDF import scrypt
 from Crypto.Cipher import AES
@@ -280,6 +281,31 @@ class EntryDialog(QDialog):
 
         self.ok_btn.clicked.connect(self.accept)
         self.cancel_btn.clicked.connect(self.reject)
+
+        gen_btn_layout = QHBoxLayout()
+        layout.addLayout(gen_btn_layout)
+
+        self.generate_password_btn = QPushButton("Generate Password")
+        gen_btn_layout.addWidget(self.generate_password_btn)
+        self.generate_password_btn.clicked.connect(self.generate_password)
+
+    def generate_password(self):
+        # secure version of random
+        rng = random.SystemRandom()
+        possible_characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+"
+
+        random_password = ""
+    
+        # randomize until we get a password that fits most requirements
+        while True:
+            random_password = ''.join(rng.choice(possible_characters) for _ in range(32))
+            if (any(c.islower() for c in random_password) and
+                any(c.isupper() for c in random_password) and
+                any(c.isdigit() for c in random_password) and
+                any(c in "!@#$%^&*()-_=+" for c in random_password)):
+                break  
+
+        self.password_edit.setText(random_password)
 
     def get_values(self):
         return (
