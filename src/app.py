@@ -325,6 +325,18 @@ class MainWindow(QWidget):
 
         main_layout = QVBoxLayout(self)
 
+        # Search bar
+        search_layout = QHBoxLayout()
+        main_layout.addLayout(search_layout)
+        
+        search_label = QLabel("Search:")
+        self.search_edit = QLineEdit()
+        self.search_edit.setPlaceholderText("Filter by title or username...")
+        self.search_edit.textChanged.connect(self.filter_entries)
+        
+        search_layout.addWidget(search_label)
+        search_layout.addWidget(self.search_edit)
+
         # Top buttons
         btn_layout = QHBoxLayout()
         main_layout.addLayout(btn_layout)
@@ -362,17 +374,45 @@ class MainWindow(QWidget):
 
     def reload_entries(self):
         self.entries = load_entries(self.mek)
+        self.filter_entries()
+    
+    def filter_entries(self):
+        """Filter and display entries based on search text."""
+        search_text = self.search_edit.text().lower().strip() if hasattr(self, 'search_edit') else ""
+        
         self.table.setRowCount(0)
         for row_idx, (id_, title, username, _password) in enumerate(self.entries):
-            self.table.insertRow(row_idx)
-            self.table.setItem(row_idx, 0, QTableWidgetItem(title))
-            self.table.setItem(row_idx, 1, QTableWidgetItem(username))
+            # Filter: show entry if search text is in title or username
+            if search_text and search_text not in title.lower() and search_text not in username.lower():
+                continue
+            
+            self.table.insertRow(self.table.rowCount())
+            current_row = self.table.rowCount() - 1
+            self.table.setItem(current_row, 0, QTableWidgetItem(title))
+            self.table.setItem(current_row, 1, QTableWidgetItem(username))
 
     def get_selected_entry(self):
+        """Get the actual entry corresponding to the selected table row."""
         row = self.table.currentRow()
-        if row < 0 or row >= len(self.entries):
+        if row < 0:
             return None
-        return self.entries[row]
+        
+        # Get the title and username from the selected row
+        title_item = self.table.item(row, 0)
+        username_item = self.table.item(row, 1)
+        if not title_item:
+            return None
+        
+        selected_title = title_item.text()
+        selected_username = username_item.text() if username_item else ""
+        
+        # Find the matching entry in self.entries
+        for entry in self.entries:
+            entry_id, title, username, password = entry
+            if title == selected_title and username == selected_username:
+                return entry
+        
+        return None
 
     def add_entry(self):
         dlg = EntryDialog(self)
